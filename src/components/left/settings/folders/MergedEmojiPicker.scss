@@ -1,0 +1,84 @@
+.MergedEmojiPicker {
+  $header-height: calc(3rem + 2.375rem + 1rem);
+
+  &_root {
+    --emoji-size: 2.25rem;
+
+    height: 100%;
+    max-height: calc(100 * var(--vh));
+
+    :global(.symbol-set-container) {
+      --symbol-set-gap-size: 0.625rem;
+    }
+  }
+
+  &_header {
+    $search-padding: calc(0.5rem - var(--border-width));
+    // To avoid refactoring of header used hack here.
+    height: $header-height;
+
+    .search {
+      position: absolute;
+      top: 3rem;
+      left: 0.5rem;
+      right: 0.5rem;
+
+      .search-icon {
+        font-size: 1.25rem;
+        padding: 0.5rem;
+        color: var(--color-text-secondary);
+      }
+
+      &:has(.end-adornment) {
+        .form-control {
+          padding-inline-end: 2.375rem;
+        }
+      }
+
+      &:has(.start-adornment) {
+        .form-control {
+          padding-inline-end: 2.375rem;
+        }
+      }
+
+      .search-clear {
+        width: 1.625rem;
+        height: 1.625rem;
+        padding: 0.1875rem;
+      }
+
+      .form-control {
+        background-color: transparent;
+        height: 2.375rem;
+        padding-top: $search-padding;
+        padding-bottom: $search-padding;
+      }
+
+      &:has(:focus) .search-icon {
+        color: var(--color-primary);
+      }
+    }
+
+    .MergedEmojiPicker.mobile & {
+      height: 3rem;
+
+      .search {
+        display: none;
+      }
+    }
+  }
+
+  .has-header {
+    height: calc(100% - $header-height);
+  }
+
+  &.mobile {
+    .has-header {
+      height: calc(100% - 3rem);
+    }
+  }
+
+  .cover-activated {
+    background-color: var(--color-interactive-element-hover);
+  }
+}

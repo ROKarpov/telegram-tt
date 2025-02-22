@@ -12,12 +12,13 @@ import './EmojiButton.scss';
 
 type OwnProps = {
   emoji: Emoji;
+  isSelected?: boolean;
   focus?: boolean;
   onClick: (emoji: string, name: string) => void;
 };
 
 const EmojiButton: FC<OwnProps> = ({
-  emoji, focus, onClick,
+  emoji, isSelected, focus, onClick,
 }) => {
   const handleClick = useLastCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     // Preventing safari from losing focus on Composer MessageInput
@@ -29,6 +30,7 @@ const EmojiButton: FC<OwnProps> = ({
   const className = buildClassName(
     'EmojiButton',
     focus && 'focus',
+    isSelected && 'selected',
   );
 
   const src = `${IS_PACKAGED_ELECTRON ? BASE_URL : '.'}/img-apple-64/${emoji.image}.png`;

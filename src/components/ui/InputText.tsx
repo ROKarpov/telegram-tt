@@ -1,7 +1,7 @@
 import type {
   ChangeEvent, FormEvent, RefObject,
 } from 'react';
-import type { FC } from '../../lib/teact/teact';
+import type { FC, TeactNode } from '../../lib/teact/teact';
 import React, { memo } from '../../lib/teact/teact';
 
 import buildClassName from '../../util/buildClassName';
@@ -23,6 +23,8 @@ type OwnProps = {
   maxLength?: number;
   tabIndex?: number;
   teactExperimentControlled?: boolean;
+  startAdornment?: TeactNode;
+  endAdornment?: TeactNode;
   inputMode?: 'text' | 'none' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search';
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
   onInput?: (e: FormEvent<HTMLInputElement>) => void;
@@ -48,6 +50,8 @@ const InputText: FC<OwnProps> = ({
   maxLength,
   tabIndex,
   teactExperimentControlled,
+  startAdornment,
+  endAdornment,
   onChange,
   onInput,
   onKeyPress,
@@ -94,6 +98,12 @@ const InputText: FC<OwnProps> = ({
       />
       {labelText && (
         <label htmlFor={id}>{labelText}</label>
+      )}
+      {endAdornment && (
+        <div className="end-adornment">{endAdornment}</div>
+      )}
+      {startAdornment && (
+        <div className="start-adornment">{startAdornment}</div>
       )}
     </div>
   );

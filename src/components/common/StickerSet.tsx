@@ -51,10 +51,12 @@ type OwnProps = {
   isNearActive: boolean;
   favoriteStickers?: ApiSticker[];
   isSavedMessages?: boolean;
+  isFolderEmojiPicker?: boolean;
   isStatusPicker?: boolean;
   isReactionPicker?: boolean;
   isCurrentUserPremium?: boolean;
   shouldHideHeader?: boolean;
+  selectedStickerId?: string;
   selectedReactionIds?: string[];
   withDefaultTopicIcon?: boolean;
   withDefaultStatusIcon?: boolean;
@@ -97,11 +99,13 @@ const StickerSet: FC<OwnProps & StateProps> = ({
   favoriteStickers,
   availableReactions,
   isSavedMessages,
+  isFolderEmojiPicker,
   isStatusPicker,
   isReactionPicker,
   isCurrentUserPremium,
   shouldHideHeader,
   withDefaultTopicIcon,
+  selectedStickerId,
   selectedReactionIds,
   withDefaultStatusIcon,
   isChatEmojiSet,
@@ -244,7 +248,8 @@ const StickerSet: FC<OwnProps & StateProps> = ({
     }
   }, [shouldRender, loadStickers, stickerSet]);
 
-  const isLocked = !isSavedMessages && !isCurrentUserPremium && isPremiumSet && !isChatEmojiSet;
+  const isLocked = !(isSavedMessages || isFolderEmojiPicker)
+    && !isCurrentUserPremium && isPremiumSet && !isChatEmojiSet;
 
   const isInstalled = stickerSet.installedDate && !stickerSet.isArchived;
 
@@ -381,7 +386,9 @@ const StickerSet: FC<OwnProps & StateProps> = ({
               ? sharedCanvasHqRef
               : sharedCanvasRef;
             const reactionId = sticker.isCustomEmoji ? sticker.id : sticker.emoji;
-            const isSelected = reactionId ? selectedReactionIds?.includes(reactionId) : undefined;
+            const isSelected = reactionId
+              ? selectedReactionIds?.includes(reactionId)
+              : selectedStickerId === reactionId;
 
             const withSparkles = sticker.id === COLLECTIBLE_STATUS_SET_ID
             || collectibleEmojiIdsSet?.has(sticker.id);

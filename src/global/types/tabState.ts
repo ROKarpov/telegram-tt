@@ -62,7 +62,7 @@ import type {
   GiftProfileFilterOptions,
   GlobalSearchContent,
   IAnchorPosition,
-  InlineBotSettings,
+  InlineBotSettings, LeftColumnContent,
   ManagementProgress,
   ManagementState,
   MediaViewerMedia,
@@ -98,6 +98,7 @@ export type TabState = {
   isChatInfoShown: boolean;
   isStatisticsShown?: boolean;
   isLeftColumnShown: boolean;
+  leftColumnContent: LeftColumnContent;
   newChatMembersProgress?: NewChatMembersProgress;
   uiReadyState: 0 | 1 | 2;
   shouldInit: boolean;
@@ -118,6 +119,7 @@ export type TabState = {
   shouldCloseRightColumn?: boolean;
   nextProfileTab?: ProfileTabType;
   forceScrollProfileTab?: boolean;
+  settingsScreen: SettingsScreens;
   nextSettingsScreen?: SettingsScreens;
   nextFoldersAction?: ReducerAction<FoldersActions>;
   shareFolderScreen?: {

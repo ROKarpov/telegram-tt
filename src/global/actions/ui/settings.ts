@@ -147,6 +147,13 @@ addActionHandler('setThemeSettings', (global, actions, payload): ActionReturnTyp
   return replaceThemeSettings(global, theme, settings);
 });
 
+addActionHandler('setSettingsScreen', (global, actions, payload): ActionReturnType => {
+  const { screen, tabId = getCurrentTabId() } = payload;
+  return updateTabState(global, {
+    settingsScreen: screen,
+  }, tabId);
+});
+
 addActionHandler('requestNextSettingsScreen', (global, actions, payload): ActionReturnType => {
   const { screen, foldersAction, tabId = getCurrentTabId() } = payload;
   return updateTabState(global, {

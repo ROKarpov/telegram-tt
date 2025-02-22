@@ -1,0 +1,18 @@
+.navigation {
+  background-color: var(--color-background-navigation);
+  border-right: 1px solid var(--color-borders);
+
+  .navigation-list-container {
+    height: calc(100% - 3.5rem);
+    overflow: scroll;
+  }
+}
+
+.navigation-dropdown {
+  width: fit-content;
+  margin: 0 auto;
+
+  .bubble {
+    margin-top: -0.5rem;
+  }
+}

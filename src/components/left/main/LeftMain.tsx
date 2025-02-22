@@ -12,6 +12,7 @@ import { PRODUCTION_URL } from '../../../config';
 import buildClassName from '../../../util/buildClassName';
 import { IS_ELECTRON, IS_TOUCH_ENV } from '../../../util/windowEnvironment';
 
+import useAppLayout from '../../../hooks/useAppLayout';
 import useForumPanelRender from '../../../hooks/useForumPanelRender';
 import useLastCallback from '../../../hooks/useLastCallback';
 import useOldLang from '../../../hooks/useOldLang';
@@ -68,7 +69,6 @@ const LeftMain: FC<OwnProps> = ({
   onReset,
   onTopicSearch,
 }) => {
-  const { closeForumPanel } = getActions();
   const [isNewChatButtonShown, setIsNewChatButtonShown] = useState(IS_TOUCH_ENV);
   const [isElectronAutoUpdateEnabled, setIsElectronAutoUpdateEnabled] = useState(false);
 
@@ -89,6 +89,8 @@ const LeftMain: FC<OwnProps> = ({
   } = useShowTransitionDeprecated(isAppUpdateAvailable || isElectronUpdateAvailable);
 
   const isMouseInside = useRef(false);
+
+  const { isMobile } = useAppLayout();
 
   const handleMouseEnter = useLastCallback(() => {
     if (content !== LeftColumnContent.ChatList) {
@@ -113,17 +115,8 @@ const LeftMain: FC<OwnProps> = ({
     }, BUTTON_CLOSE_DELAY_MS);
   });
 
-  const handleSelectSettings = useLastCallback(() => {
-    onContentChange(LeftColumnContent.Settings);
-  });
-
   const handleSelectContacts = useLastCallback(() => {
     onContentChange(LeftColumnContent.Contacts);
-  });
-
-  const handleSelectArchived = useLastCallback(() => {
-    onContentChange(LeftColumnContent.Archived);
-    closeForumPanel();
   });
 
   const handleUpdateClick = useLastCallback(() => {
@@ -175,9 +168,6 @@ const LeftMain: FC<OwnProps> = ({
         content={content}
         contactsFilter={contactsFilter}
         onSearchQuery={onSearchQuery}
-        onSelectSettings={handleSelectSettings}
-        onSelectContacts={handleSelectContacts}
-        onSelectArchived={handleSelectArchived}
         onReset={onReset}
         shouldSkipTransition={shouldSkipTransition}
         isClosingSearch={isClosingSearch}

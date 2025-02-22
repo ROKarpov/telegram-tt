@@ -66,6 +66,7 @@ import MessageListHistoryHandler from '../middle/MessageListHistoryHandler';
 import MiddleColumn from '../middle/MiddleColumn';
 import AudioPlayer from '../middle/panes/AudioPlayer';
 import ModalContainer from '../modals/ModalContainer';
+import Navigation from '../navigation/Navigation';
 import PaymentModal from '../payment/PaymentModal.async';
 import ReceiptModal from '../payment/ReceiptModal.async';
 import RightColumn from '../right/RightColumn';
@@ -138,6 +139,7 @@ type StateProps = {
   isStarsGiftingPickerModal?: boolean;
   isCurrentUserPremium?: boolean;
   noRightColumnAnimation?: boolean;
+  hasFolders?: boolean;
   withInterfaceAnimations?: boolean;
   isSynced?: boolean;
 };
@@ -191,6 +193,7 @@ const Main = ({
   deleteFolderDialog,
   isMasterTab,
   noRightColumnAnimation,
+  hasFolders,
   isSynced,
   currentUserId,
 }: OwnProps & StateProps) => {
@@ -501,12 +504,15 @@ const Main = ({
     });
   }, [isMiddleColumnOpen, isRightColumnOpen, noRightColumnAnimation, forceUpdate]);
 
+  const showNavigation = Boolean(!isMobile && hasFolders);
+
   const className = buildClassName(
     willAnimateLeftColumnRef.current && 'left-column-animating',
     willAnimateRightColumnRef.current && 'right-column-animating',
     isNarrowMessageList && 'narrow-message-list',
     shouldSkipHistoryAnimations && 'history-animation-disabled',
     isFullscreen && 'is-fullscreen',
+    showNavigation && 'has-navigation',
   );
 
   const handleBlur = useLastCallback(() => {
@@ -538,6 +544,7 @@ const Main = ({
 
   return (
     <div ref={containerRef} id="Main" className={className}>
+      {showNavigation && <Navigation id="Navigation" />}
       <LeftColumn ref={leftColumnRef} />
       <MiddleColumn leftColumnRef={leftColumnRef} isMobile={isMobile} />
       <RightColumn isMobile={isMobile} />
@@ -604,6 +611,9 @@ export default memo(withGlobal<OwnProps>(
         },
       },
       currentUserId,
+      chatFolders: {
+        orderedIds: orderedFolderIds,
+      },
     } = global;
 
     const {
@@ -675,6 +685,7 @@ export default memo(withGlobal<OwnProps>(
       isGiveawayModalOpen: giveawayModal?.isOpen,
       isDeleteMessageModalOpen: Boolean(deleteMessageModal),
       isStarsGiftingPickerModal: starsGiftingPickerModal?.isOpen,
+      hasFolders: (orderedFolderIds?.length ?? 0) > 1,
       limitReached: limitReachedModal?.limit,
       isPaymentModalOpen: payment.isPaymentModalOpen,
       isReceiptModalOpen: Boolean(payment.receipt),

@@ -1,0 +1,53 @@
+.folder-navigation-item {
+  flex-direction: column;
+  gap: 0.25rem;
+  height: unset;
+  font-size: 0.625rem;
+  line-height: 1;
+  text-transform: unset;
+  overflow: unset;
+  padding: 0.75rem 0.625rem;
+  font-weight: bold;
+
+  color: var(--color-text-secondary);
+
+  &.selected {
+    color: var(--color-primary);
+  }
+
+  &_icon-container {
+    display: flex;
+    position: relative;
+  }
+
+  &_icon {
+    width: 2rem;
+    height: 2rem;
+    font-size: 2rem;
+    line-height: 1;
+  }
+
+  &_unread-count {
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.375rem;
+    border-radius: 0.625rem;
+    font-size: 0.75rem;
+    line-height: 1.25rem;
+    font-weight: var(--font-weight-medium);
+    text-align: center;
+    background: var(--color-primary);
+    color: white;
+    pointer-events: none;
+
+    position: absolute;
+    right: 0;
+    transform: translate(50%, -50%);
+
+    [dir="rtl"] & {
+      right: unset;
+      left: 0;
+      transform: translate(-50%, -50%);
+    }
+  }
+}

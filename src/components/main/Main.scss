@@ -1,7 +1,10 @@
 #Main {
+  --navigation-width: 0px;
+
   height: 100%;
   text-align: left;
   overflow: hidden;
+  padding-left: var(--navigation-width);
 
   @media (min-width: 1276px) {
     position: relative;
@@ -15,6 +18,10 @@
     display: grid;
     grid-template-columns: auto 1fr;
     grid-template-rows: 100%;
+  }
+
+  &.has-navigation {
+    --navigation-width: 81px;
   }
 }
 
@@ -38,6 +45,7 @@
   overflow: hidden;
   position: relative;
 
+  border-right: 1px solid var(--color-borders);
   background-color: var(--color-background);
 
   @media (min-width: 926px) {
@@ -98,7 +106,7 @@
     }
 
     #Main.left-column-open & {
-      transform: translate3d(0, 0, 0);
+      transform: translate3d(var(--navigation-width), 0, 0);
     }
 
     #Main.history-animation-disabled & {
@@ -113,10 +121,11 @@
   @media (max-width: 600px) {
     height: calc(var(--vh, 1vh) * 100);
     max-width: none;
-    --left-column-max-width: calc(100vw - env(safe-area-inset-left));
+    --left-column-max-width: calc(100vw - env(safe-area-inset-left) - var(--navigation-width));
     transform: translate3d(-20vw, 0, 0);
     left: env(safe-area-inset-left) !important;
-    width: calc(100vw - env(safe-area-inset-left)) !important;
+    width: var(--left-column-max-width) !important;
+    border-right-width: 0;
 
     // Fix: when opening the SymbolMenu, the chat list flashes in the background
     body.is-symbol-menu-open &::before {
@@ -151,9 +160,8 @@
 }
 
 #MiddleColumn {
-  border-left: 1px solid var(--color-borders);
-
   @media (max-width: 925px) {
+    width: calc(100vw - var(--navigation-width));
     max-width: none;
     position: fixed;
     left: 0;
@@ -161,7 +169,7 @@
     bottom: 0;
     right: 0;
 
-    transform: translate3d(0, 0, 0);
+    transform: translate3d(var(--navigation-width), 0, 0);
     transition: transform var(--layer-transition);
 
     body.no-page-transitions & {
@@ -169,7 +177,7 @@
     }
 
     #Main.left-column-open & {
-      transform: translate3d(26.5rem, 0, 0);
+      transform: translate3d(calc(26.5rem + var(--navigation-width)), 0, 0);
     }
 
     body.no-right-column-animations #Main.right-column-open &,
@@ -197,4 +205,14 @@
       transition: none;
     }
   }
+}
+
+#Navigation {
+  position: absolute;
+
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--navigation-width);
+  z-index: var(--z-navigation);
 }

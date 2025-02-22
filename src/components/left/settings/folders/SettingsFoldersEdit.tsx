@@ -1,6 +1,7 @@
 import type { FC } from '../../../../lib/teact/teact';
 import React, {
-  memo, useCallback, useEffect, useMemo, useState,
+  memo, useCallback, useEffect, useMemo, useRef,
+  useState,
 } from '../../../../lib/teact/teact';
 import { getActions, getGlobal, withGlobal } from '../../../../global';
 
@@ -31,6 +32,7 @@ import FloatingActionButton from '../../../ui/FloatingActionButton';
 import InputText from '../../../ui/InputText';
 import ListItem from '../../../ui/ListItem';
 import Spinner from '../../../ui/Spinner';
+import { EmojiPickerMenuButton } from './EmojiPickerMenuButton';
 
 type OwnProps = {
   state: FoldersState;
@@ -83,6 +85,9 @@ const SettingsFoldersEdit: FC<OwnProps & StateProps> = ({
   chatListCount,
   onSaveFolder,
 }) => {
+  // eslint-disable-next-line no-null/no-null
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
   const {
     loadChatlistInvites,
     openLimitReachedModal,
@@ -154,6 +159,10 @@ const SettingsFoldersEdit: FC<OwnProps & StateProps> = ({
   const handleChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const { currentTarget } = event;
     dispatch({ type: 'setTitle', payload: currentTarget.value.trim() });
+  }, [dispatch]);
+
+  const handleEmojiSelect = useCallback((emoji: string) => {
+    dispatch({ type: 'setEmoticon', payload: emoji });
   }, [dispatch]);
 
   const handleSubmit = useCallback(() => {
@@ -297,11 +306,13 @@ const SettingsFoldersEdit: FC<OwnProps & StateProps> = ({
           )}
 
           <InputText
+            ref={nameInputRef}
             className="mb-0"
             label={lang('FilterNameHint')}
             value={state.folder.title.text}
             onChange={handleChange}
             error={state.error && state.error === ERROR_NO_TITLE ? ERROR_NO_TITLE : undefined}
+            endAdornment={<EmojiPickerMenuButton emoticon={state.folder.emoticon} onEmojiSelect={handleEmojiSelect} />}
           />
         </div>
 

@@ -1,6 +1,6 @@
 import type { PerformanceType } from '../types';
 import type { GlobalState, TabState } from './types';
-import { NewChatMembersProgress } from '../types';
+import { LeftColumnContent, NewChatMembersProgress, SettingsScreens } from '../types';
 
 import {
   ANIMATION_LEVEL_DEFAULT,
@@ -319,6 +319,10 @@ export const INITIAL_TAB_STATE: TabState = {
   id: 0,
   isMasterTab: false,
   isLeftColumnShown: true,
+  leftColumnContent: LeftColumnContent.ChatList,
+
+  settingsScreen: SettingsScreens.Main,
+
   isChatInfoShown: false,
   newChatMembersProgress: NewChatMembersProgress.Closed,
   uiReadyState: 0,

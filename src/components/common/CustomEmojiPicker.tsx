@@ -1,6 +1,6 @@
 import type { FC } from '../../lib/teact/teact';
 import React, {
-  memo, useEffect, useMemo, useRef,
+  memo, useEffect, useRef,
 } from '../../lib/teact/teact';
 import { getGlobal, withGlobal } from '../../global';
 
@@ -12,7 +12,6 @@ import type {
 import type { StickerSetOrReactionsSetOrRecent } from '../../types';
 
 import {
-  COLLECTIBLE_STATUS_SET_ID,
   FAVORITE_SYMBOL_SET_ID,
   POPULAR_SYMBOL_SET_ID,
   RECENT_SYMBOL_SET_ID,
@@ -21,7 +20,6 @@ import {
   STICKER_SIZE_PICKER_HEADER,
   TOP_SYMBOL_SET_ID,
 } from '../../config';
-import { isSameReaction } from '../../global/helpers';
 import {
   selectCanPlayAnimatedEmojis,
   selectChatFullInfo,
@@ -31,13 +29,13 @@ import {
 } from '../../global/selectors';
 import animateHorizontalScroll from '../../util/animateHorizontalScroll';
 import buildClassName from '../../util/buildClassName';
-import { pickTruthy, unique, uniqueByField } from '../../util/iteratees';
+
 import { IS_TOUCH_ENV } from '../../util/windowEnvironment';
 import { REM } from './helpers/mediaDimensions';
 
+import { useCustomEmojiData } from '../../hooks/shared/useCustomEmojiData';
 import useAppLayout from '../../hooks/useAppLayout';
 import useHorizontalScroll from '../../hooks/useHorizontalScroll';
-import useLang from '../../hooks/useLang';
 import useLastCallback from '../../hooks/useLastCallback';
 import useOldLang from '../../hooks/useOldLang';
 import usePrevDuringAnimation from '../../hooks/usePrevDuringAnimation';
@@ -99,9 +97,6 @@ type StateProps = {
 const HEADER_BUTTON_WIDTH = 2.5 * REM; // px (including margin)
 
 const DEFAULT_ID_PREFIX = 'custom-emoji-set';
-const TOP_REACTIONS_COUNT = 16;
-const RECENT_REACTIONS_COUNT = 32;
-const RECENT_DEFAULT_STATUS_COUNT = 7;
 const FADED_BUTTON_SET_IDS = new Set([RECENT_SYMBOL_SET_ID, FAVORITE_SYMBOL_SET_ID, POPULAR_SYMBOL_SET_ID]);
 const STICKER_SET_IDS_WITH_COVER = new Set([
   RECENT_SYMBOL_SET_ID,
@@ -160,17 +155,6 @@ const CustomEmojiPicker: FC<OwnProps & StateProps> = ({
     isAtBeginning: shouldHideTopBorder,
   } = useScrolledState();
 
-  const recentCustomEmojis = useMemo(() => {
-    return isStatusPicker
-      ? recentStatusEmojis
-      : Object.values(pickTruthy(customEmojisById!, recentCustomEmojiIds!));
-  }, [customEmojisById, isStatusPicker, recentCustomEmojiIds, recentStatusEmojis]);
-
-  const collectibleStatusEmojis = useMemo(() => {
-    const collectibleStatusEmojiIds = collectibleStatuses?.map((status) => status.documentId);
-    return customEmojisById && collectibleStatusEmojiIds?.map((id) => customEmojisById[id]).filter(Boolean);
-  }, [customEmojisById, collectibleStatuses]);
-
   const prefix = `${idPrefix}-custom-emoji`;
   const {
     activeSetIndex,
@@ -184,133 +168,32 @@ const CustomEmojiPicker: FC<OwnProps & StateProps> = ({
   const canLoadAndPlay = usePrevDuringAnimation(loadAndPlay || undefined, SLIDE_TRANSITION_DURATION);
 
   const oldLang = useOldLang();
-  const lang = useLang();
 
-  const areAddedLoaded = Boolean(addedCustomEmojiIds);
-
-  const allSets = useMemo(() => {
-    const defaultSets: StickerSetOrReactionsSetOrRecent[] = [];
-
-    if (isReactionPicker && isSavedMessages) {
-      if (defaultTagReactions?.length) {
-        defaultSets.push({
-          id: TOP_SYMBOL_SET_ID,
-          accessHash: '',
-          title: oldLang('PremiumPreviewTags'),
-          reactions: defaultTagReactions,
-          count: defaultTagReactions.length,
-          isEmoji: true,
-        });
-      }
-    }
-
-    if (isReactionPicker && !isSavedMessages) {
-      const topReactionsSlice: ApiReactionWithPaid[] = topReactions?.slice(0, TOP_REACTIONS_COUNT) || [];
-      if (isWithPaidReaction) {
-        topReactionsSlice.unshift({ type: 'paid' });
-      }
-      if (topReactionsSlice?.length) {
-        defaultSets.push({
-          id: TOP_SYMBOL_SET_ID,
-          accessHash: '',
-          title: oldLang('Reactions'),
-          reactions: topReactionsSlice,
-          count: topReactionsSlice.length,
-          isEmoji: true,
-        });
-      }
-
-      const cleanRecentReactions = (recentReactions || [])
-        .filter((reaction) => !topReactionsSlice.some((topReaction) => isSameReaction(topReaction, reaction)))
-        .slice(0, RECENT_REACTIONS_COUNT);
-      const cleanAvailableReactions = (availableReactions || [])
-        .filter(({ isInactive }) => !isInactive)
-        .map(({ reaction }) => reaction)
-        .filter((reaction) => {
-          return !topReactionsSlice.some((topReaction) => isSameReaction(topReaction, reaction))
-            && !cleanRecentReactions.some((topReaction) => isSameReaction(topReaction, reaction));
-        });
-      if (cleanAvailableReactions?.length || cleanRecentReactions?.length) {
-        const isPopular = !cleanRecentReactions?.length;
-        const allRecentReactions = cleanRecentReactions.concat(cleanAvailableReactions);
-        defaultSets.push({
-          id: isPopular ? POPULAR_SYMBOL_SET_ID : RECENT_SYMBOL_SET_ID,
-          accessHash: '',
-          title: oldLang(isPopular ? 'PopularReactions' : 'RecentStickers'),
-          reactions: allRecentReactions,
-          count: allRecentReactions.length,
-          isEmoji: true,
-        });
-      }
-    } else if (isStatusPicker) {
-      const defaultStatusIconsPack = stickerSetsById[defaultStatusIconsId!];
-      if (defaultStatusIconsPack?.stickers?.length) {
-        const stickers = uniqueByField(defaultStatusIconsPack.stickers
-          .slice(0, RECENT_DEFAULT_STATUS_COUNT)
-          .concat(recentCustomEmojis || []), 'id');
-        defaultSets.push({
-          ...defaultStatusIconsPack,
-          stickers,
-          count: stickers.length,
-          id: RECENT_SYMBOL_SET_ID,
-          title: oldLang('RecentStickers'),
-          isEmoji: true,
-        });
-      }
-      if (collectibleStatusEmojis?.length) {
-        defaultSets.push({
-          id: COLLECTIBLE_STATUS_SET_ID,
-          accessHash: '',
-          count: collectibleStatusEmojis.length,
-          stickers: collectibleStatusEmojis,
-          title: lang('CollectibleStatusesCategory'),
-          isEmoji: true,
-        });
-      }
-    } else if (withDefaultTopicIcons) {
-      const defaultTopicIconsPack = stickerSetsById[defaultTopicIconsId!];
-      if (defaultTopicIconsPack.stickers?.length) {
-        defaultSets.push({
-          ...defaultTopicIconsPack,
-          id: RECENT_SYMBOL_SET_ID,
-          title: oldLang('RecentStickers'),
-        });
-      }
-    } else if (recentCustomEmojis?.length) {
-      defaultSets.push({
-        id: RECENT_SYMBOL_SET_ID,
-        accessHash: '0',
-        title: oldLang('RecentStickers'),
-        stickers: recentCustomEmojis,
-        count: recentCustomEmojis.length,
-        isEmoji: true,
-      });
-    }
-
-    const userSetIds = [...(addedCustomEmojiIds || [])];
-    if (chatEmojiSetId) {
-      userSetIds.unshift(chatEmojiSetId);
-    }
-
-    const setIdsToDisplay = unique(userSetIds.concat(customEmojiFeaturedIds || []));
-
-    const setsToDisplay = Object.values(pickTruthy(stickerSetsById, setIdsToDisplay));
-
-    return [
-      ...defaultSets,
-      ...setsToDisplay,
-    ];
-  }, [
-    addedCustomEmojiIds, isReactionPicker, isStatusPicker, withDefaultTopicIcons, recentCustomEmojis,
-    customEmojiFeaturedIds, stickerSetsById, topReactions, availableReactions, oldLang, recentReactions,
-    defaultStatusIconsId, defaultTopicIconsId, isSavedMessages, defaultTagReactions, chatEmojiSetId,
-    isWithPaidReaction, collectibleStatusEmojis, lang,
-  ]);
-
-  const noPopulatedSets = useMemo(() => (
-    areAddedLoaded
-    && allSets.filter((set) => set.stickers?.length).length === 0
-  ), [allSets, areAddedLoaded]);
+  const {
+    allSets,
+    areAddedLoaded,
+    noPopulatedSets,
+  } = useCustomEmojiData({
+    addedCustomEmojiIds,
+    customEmojisById,
+    recentCustomEmojiIds,
+    recentStatusEmojis,
+    collectibleStatuses,
+    stickerSetsById,
+    chatEmojiSetId,
+    topReactions,
+    recentReactions,
+    availableReactions,
+    customEmojiFeaturedIds,
+    defaultTopicIconsId,
+    defaultStatusIconsId,
+    defaultTagReactions,
+    isSavedMessages,
+    isWithPaidReaction,
+    isReactionPicker,
+    isStatusPicker,
+    withDefaultTopicIcons,
+  });
 
   const canRenderContent = useAsyncRendering([], SLIDE_TRANSITION_DURATION);
   const shouldRenderContent = areAddedLoaded && canRenderContent && !noPopulatedSets;

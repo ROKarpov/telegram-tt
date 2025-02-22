@@ -46,6 +46,14 @@ const TRANSITION_DURATION_FACTOR = 50;
 const SCROLLER_CLASS = 'input-scroller';
 const INPUT_WRAPPER_CLASS = 'message-input-wrapper';
 
+declare module 'react' {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
+  interface ChangeEvent {
+    inputType: string;
+    data: string;
+  }
+}
+
 type OwnProps = {
   ref?: RefObject<HTMLDivElement>;
   id: string;
@@ -418,6 +426,7 @@ const MessageInput: FC<OwnProps & StateProps> = ({
   function handleChange(e: ChangeEvent<HTMLDivElement>) {
     const { innerHTML, textContent } = e.currentTarget;
 
+    console.log('handleChange', { inputType: e.inputType, innerHTML, textContent, data: e.data });
     onUpdate(innerHTML === SAFARI_BR ? '' : innerHTML);
 
     // Reset focus on the input to remove any active styling when input is cleared

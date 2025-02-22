@@ -16,6 +16,7 @@ export type EmojiModule = { default: EmojiRawData };
 export type EmojiData = {
   categories: Array<EmojiCategory>;
   emojis: Record<string, Emoji>;
+  nativeToName: Record<string, string>;
 };
 
 function unifiedToNative(unified: string) {
@@ -70,7 +71,7 @@ function nativeToUnifiedExtended(emoji: string) {
 export const nativeToUnifiedExtendedWithCache = withCache(nativeToUnifiedExtended);
 
 export function uncompressEmoji(data: EmojiRawData): EmojiData {
-  const emojiData: EmojiData = { categories: [], emojis: {} };
+  const emojiData: EmojiData = { categories: [], emojis: {}, nativeToName: {} };
 
   for (let i = 0; i < data.length; i += 2) {
     const category = {
@@ -82,6 +83,7 @@ export function uncompressEmoji(data: EmojiRawData): EmojiData {
     for (let j = 0; j < data[i + 1].length; j++) {
       const emojiRaw = data[i + 1][j];
       if (!EXCLUDE_EMOJIS.includes(emojiRaw[1][0])) {
+        const native = unifiedToNative(emojiRaw[0] as string);
         category.emojis.push(emojiRaw[1][0]);
         emojiData.emojis[emojiRaw[1][0]] = {
           id: emojiRaw[1][0],
@@ -89,6 +91,7 @@ export function uncompressEmoji(data: EmojiRawData): EmojiData {
           native: unifiedToNative(emojiRaw[0] as string),
           image: (emojiRaw[0] as string).toLowerCase(),
         };
+        emojiData.nativeToName[native] = emojiRaw[1][0];
       }
     }
 

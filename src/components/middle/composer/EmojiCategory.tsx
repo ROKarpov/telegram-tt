@@ -21,9 +21,22 @@ const EMOJI_VERTICAL_MARGIN = 0.25 * REM;
 const EMOJI_VERTICAL_MARGIN_MOBILE = 0.5 * REM;
 const MOBILE_CONTAINER_PADDING = 0.5 * REM;
 
+const CATEGORY_TO_INDEX: Record<string, number> = {
+  recent: 0,
+  people: 1,
+  nature: 2,
+  foods: 3,
+  activity: 4,
+  places: 5,
+  objects: 6,
+  symbols: 7,
+  flags: 8,
+};
+
 type OwnProps = {
+  id: string;
+  selectedEmoji?: string;
   category: EmojiCategory;
-  index: number;
   allEmojis: AllEmojis;
   observeIntersection: ObserveFn;
   shouldRender: boolean;
@@ -31,7 +44,7 @@ type OwnProps = {
 };
 
 const EmojiCategory: FC<OwnProps> = ({
-  category, index, allEmojis, observeIntersection, shouldRender, onEmojiSelect,
+  id, selectedEmoji, category, allEmojis, observeIntersection, shouldRender, onEmojiSelect,
 }) => {
   // eslint-disable-next-line no-null/no-null
   const ref = useRef<HTMLDivElement>(null);
@@ -55,12 +68,14 @@ const EmojiCategory: FC<OwnProps> = ({
     <div
       ref={ref}
       key={category.id}
-      id={`emoji-category-${index}`}
+      id={id}
       className="symbol-set"
     >
       <div className="symbol-set-header">
         <p className="symbol-set-name" dir="auto">
-          {lang(category.id === RECENT_SYMBOL_SET_ID ? 'RecentStickers' : `Emoji${index}`)}
+          {lang(
+            category.id === RECENT_SYMBOL_SET_ID ? 'RecentStickers' : `Emoji${CATEGORY_TO_INDEX[category.id] ?? 0}`,
+          )}
         </p>
       </div>
       <div
@@ -78,9 +93,11 @@ const EmojiCategory: FC<OwnProps> = ({
           // For now, we select only the first emoji with 'neutral' skin.
           const displayedEmoji = 'id' in emoji ? emoji : emoji[1];
 
+          const isSelected = displayedEmoji.native === selectedEmoji;
           return (
             <EmojiButton
               key={displayedEmoji.id}
+              isSelected={isSelected}
               emoji={displayedEmoji}
               onClick={onEmojiSelect}
             />

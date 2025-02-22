@@ -22,11 +22,14 @@ import useOldLang from '../../../../hooks/useOldLang';
 import usePreviousDeprecated from '../../../../hooks/usePreviousDeprecated';
 
 import AnimatedIconWithPreview from '../../../common/AnimatedIconWithPreview';
+import FolderEmoticon from '../../../common/FolderImoticon';
 import Icon from '../../../common/icons/Icon';
 import Button from '../../../ui/Button';
 import Draggable from '../../../ui/Draggable';
 import ListItem from '../../../ui/ListItem';
 import Loading from '../../../ui/Loading';
+
+import './SettingsFoldersMain.scss';
 
 type OwnProps = {
   isActive?: boolean;
@@ -143,6 +146,7 @@ const SettingsFoldersMain: FC<OwnProps & StateProps> = ({
       return {
         id: folder.id,
         title: folder.title,
+        emoticon: folder.emoticon,
         subtitle: getFolderDescriptionText(lang, folder, chatsCountByFolderId[folder.id]),
         isChatList: folder.isChatList,
         noTitleAnimations: folder.noTitleAnimations,
@@ -254,6 +258,7 @@ const SettingsFoldersMain: FC<OwnProps & StateProps> = ({
                     multiline
                     isStatic
                     allowSelection
+                    icon="chats-badge"
                   >
                     <span className="title">
                       {renderTextWithEntities({
@@ -293,6 +298,13 @@ const SettingsFoldersMain: FC<OwnProps & StateProps> = ({
                       icon: 'delete',
                     },
                   ]}
+                  leftElement={(
+                    <FolderEmoticon
+                      className="settings-folders-main-folder-icon"
+                      id={folder.id}
+                      emoticon={folder.emoticon}
+                    />
+                  )}
                   // eslint-disable-next-line react/jsx-no-bind
                   onClick={() => {
                     if (isBlocked) {

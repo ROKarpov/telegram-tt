@@ -1,24 +1,8 @@
 const extractorEl = document.createElement('div');
 
 export function insertHtmlInSelection(html: string) {
-  const selection = window.getSelection();
-
-  if (selection?.getRangeAt && selection.rangeCount) {
-    const range = selection.getRangeAt(0);
-    range.deleteContents();
-
-    const fragment = range.createContextualFragment(html);
-    const lastInsertedNode = fragment.lastChild;
-    range.insertNode(fragment);
-    if (lastInsertedNode) {
-      range.setStartAfter(lastInsertedNode);
-      range.setEndAfter(lastInsertedNode);
-    } else {
-      range.collapse(false);
-    }
-    selection.removeAllRanges();
-    selection.addRange(range);
-  }
+  // This API is already used. So IMO it's OK to use it instead of a complex solution.
+  document.execCommand('insertHTML', undefined, html);
 }
 
 export function getHtmlBeforeSelection(container?: HTMLElement, useCommonAncestor?: boolean) {

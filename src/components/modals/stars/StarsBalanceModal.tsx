@@ -5,6 +5,7 @@ import { getActions, getGlobal, withGlobal } from '../../../global';
 
 import type { ApiStarTopupOption } from '../../../api/types';
 import type { GlobalState, TabState } from '../../../global/types';
+import type { TabWithProperties } from '../../../hooks/shared/useFolderTabs';
 import type { RegularLangKey } from '../../../types/language';
 
 import { getChatTitle, getPeerTitle, getUserFullName } from '../../../global/helpers';
@@ -22,7 +23,7 @@ import SafeLink from '../../common/SafeLink';
 import Button from '../../ui/Button';
 import InfiniteScroll from '../../ui/InfiniteScroll';
 import Modal from '../../ui/Modal';
-import TabList, { type TabWithProperties } from '../../ui/TabList';
+import TabList from '../../ui/TabList';
 import Transition from '../../ui/Transition';
 import BalanceBlock from './BalanceBlock';
 import StarTopupOptionList from './StarTopupOptionList';

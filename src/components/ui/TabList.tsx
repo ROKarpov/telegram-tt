@@ -1,7 +1,7 @@
-import type { FC, TeactNode } from '../../lib/teact/teact';
+import type { FC } from '../../lib/teact/teact';
 import React, { memo, useEffect, useRef } from '../../lib/teact/teact';
 
-import type { MenuItemContextAction } from './ListItem';
+import type { TabWithProperties } from '../../hooks/shared/useFolderTabs';
 
 import animateHorizontalScroll from '../../util/animateHorizontalScroll';
 import buildClassName from '../../util/buildClassName';
@@ -14,15 +14,6 @@ import usePreviousDeprecated from '../../hooks/usePreviousDeprecated';
 import Tab from './Tab';
 
 import './TabList.scss';
-
-export type TabWithProperties = {
-  id?: number;
-  title: TeactNode;
-  badgeCount?: number;
-  isBlocked?: boolean;
-  isBadgeActive?: boolean;
-  contextActions?: MenuItemContextAction[];
-};
 
 type OwnProps = {
   tabs: readonly TabWithProperties[];

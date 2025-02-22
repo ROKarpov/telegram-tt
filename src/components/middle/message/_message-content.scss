@@ -1052,7 +1052,7 @@
 }
 
 blockquote, .blockquote {
-  display: inline-block;
+  display: block;
   position: relative;
   padding-inline: 0.5rem 1rem;
   margin-block: 0.125rem;
@@ -1061,6 +1061,8 @@ blockquote, .blockquote {
   background-color: var(--accent-background-color);
   white-space: pre-wrap;
   font-size: calc(var(--message-text-size, 1rem) - 0.125rem);
+  width: fit-content;
+  margin-block-end: auto;
 
   &::before {
     content: "";

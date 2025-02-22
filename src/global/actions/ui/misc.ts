@@ -2,6 +2,7 @@ import { addCallback } from '../../../lib/teact/teactn';
 
 import type { ApiError, ApiNotification } from '../../../api/types';
 import type { ActionReturnType, GlobalState } from '../../types';
+import { LeftColumnContent, SettingsScreens } from '../../../types';
 
 import {
   ANIMATION_WAVE_MIN_INTERVAL,
@@ -197,9 +198,20 @@ addActionHandler('toggleStoryStatistics', (global, actions, payload): ActionRetu
 });
 
 addActionHandler('toggleLeftColumn', (global, actions, payload): ActionReturnType => {
-  const { tabId = getCurrentTabId() } = payload || {};
+  const { forceOpen, tabId = getCurrentTabId() } = payload || {};
+  const { isLeftColumnShown } = selectTabState(global, tabId);
   return updateTabState(global, {
-    isLeftColumnShown: !selectTabState(global, tabId).isLeftColumnShown,
+    isLeftColumnShown: forceOpen ?? !isLeftColumnShown,
+  }, tabId);
+});
+
+addActionHandler('setLeftColumnContent', (global, actions, payload): ActionReturnType => {
+  const {
+    tabId = getCurrentTabId(),
+    content: leftColumnContent,
+  } = payload || {};
+  return updateTabState(global, {
+    leftColumnContent,
   }, tabId);
 });
 

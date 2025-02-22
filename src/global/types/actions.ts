@@ -64,7 +64,7 @@ import type {
   GlobalSearchContent,
   IAnchorPosition,
   ISettings,
-  IThemeSettings,
+  IThemeSettings, LeftColumnContent,
   LoadMoreDirection,
   ManagementScreens,
   MediaViewerMedia,
@@ -313,7 +313,9 @@ export interface ActionPayloads {
   setIsUiReady: {
     uiReadyState: 0 | 1 | 2;
   } & WithTabId;
-  toggleLeftColumn: WithTabId | undefined;
+  toggleLeftColumn: (WithTabId & { forceOpen?: boolean }) | undefined;
+  setLeftColumnContent: (WithTabId & { content: LeftColumnContent });
+  resetLeftColumn: (WithTabId & { forceReturnToChatList?: boolean }) | undefined;
 
   addChatMembers: {
     chatId: string;
@@ -2231,6 +2233,9 @@ export interface ActionPayloads {
   } | undefined;
   loadPeerColors: undefined;
   loadTimezones: undefined;
+  setSettingsScreen: WithTabId & {
+    screen: SettingsScreens;
+  };
   requestNextSettingsScreen: {
     screen?: SettingsScreens;
     foldersAction?: ReducerAction<FoldersActions>;

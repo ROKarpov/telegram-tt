@@ -26,7 +26,9 @@ export function animateOpening(isArchived?: boolean) {
     return;
   }
 
-  const { bottom: headerBottom, right: headerRight } = leftMainHeader.getBoundingClientRect();
+  const {
+    left: headerLeft, bottom: headerBottom, right: headerRight,
+  } = leftMainHeader.getBoundingClientRect();
   const toTop = headerBottom + RIBBON_OFFSET;
 
   // Toggle avatars are in the reverse order
@@ -57,8 +59,9 @@ export function animateOpening(isArchived?: boolean) {
       width: fromWidth,
     } = toggleAvatar.getBoundingClientRect();
 
-    const {
+    let {
       left: toLeft,
+      // eslint-disable-next-line prefer-const
       width: toWidth,
     } = peer.getBoundingClientRect();
 
@@ -66,8 +69,10 @@ export function animateOpening(isArchived?: boolean) {
       return;
     }
 
-    fromLeft -= STROKE_OFFSET;
+    fromLeft -= STROKE_OFFSET + headerLeft;
     fromWidth += 2 * STROKE_OFFSET;
+
+    toLeft -= headerLeft;
 
     const fromTranslateX = fromLeft - toLeft;
     const fromTranslateY = fromTop - toTop;
@@ -169,7 +174,7 @@ export function animateClosing(isArchived?: boolean) {
   if (!toggler || !toggleAvatars || !ribbonPeers || !container || !leftMainHeader) {
     return;
   }
-  const { right: headerRight } = leftMainHeader.getBoundingClientRect();
+  const { left: headerLeft, right: headerRight } = leftMainHeader.getBoundingClientRect();
 
   // Toggle avatars are in the reverse order
   const lastToggleAvatar = toggleAvatars[0];
@@ -192,9 +197,11 @@ export function animateClosing(isArchived?: boolean) {
 
     if (!toggleAvatar) return;
 
-    const {
+    let {
+      // eslint-disable-next-line prefer-const
       top: fromTop,
       left: fromLeft,
+      // eslint-disable-next-line prefer-const
       width: fromWidth,
     } = peer.getBoundingClientRect();
 
@@ -207,6 +214,9 @@ export function animateClosing(isArchived?: boolean) {
     if (fromLeft > headerRight) {
       return;
     }
+
+    fromLeft -= headerLeft;
+    toLeft -= headerLeft;
 
     toLeft -= STROKE_OFFSET;
     toWidth += 2 * STROKE_OFFSET;

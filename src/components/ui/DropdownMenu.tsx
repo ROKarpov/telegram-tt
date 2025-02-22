@@ -9,7 +9,7 @@ import Menu from './Menu';
 
 import './DropdownMenu.scss';
 
-type OwnProps = {
+export type DropdownMenuOwnProps = {
   className?: string;
   trigger?: FC<{ onTrigger: () => void; isOpen?: boolean }>;
   transformOriginX?: number;
@@ -27,7 +27,7 @@ type OwnProps = {
   autoClose?: boolean;
 };
 
-const DropdownMenu: FC<OwnProps> = ({
+const DropdownMenu: FC<DropdownMenuOwnProps> = ({
   trigger,
   className,
   children,
