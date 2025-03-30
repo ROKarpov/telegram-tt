@@ -160,7 +160,12 @@ const SettingsGeneralBackground: FC<OwnProps & StateProps> = ({
         theme: themeRef.current!,
         background: undefined,
         backgroundColor: color,
+        secondBackgroundColor: undefined,
+        thirdBackgroundColor: undefined,
+        fourthBackgroundColor: undefined,
+        pattern: undefined,
         patternColor,
+        intensity: 100,
       });
     }
     isFirstRunRef.current = false;

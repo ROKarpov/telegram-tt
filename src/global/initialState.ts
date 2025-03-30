@@ -15,6 +15,8 @@ import {
 } from '../config';
 import { IS_IOS, IS_MAC_OS } from '../util/windowEnvironment';
 
+import lightPattern from '../assets/chat-bg-pattern-light.png';
+
 export const INITIAL_PERFORMANCE_STATE_MAX: PerformanceType = {
   animatedEmoji: true,
   autoplayGifs: true,
@@ -287,10 +289,22 @@ export const INITIAL_GLOBAL_STATE: GlobalState = {
       light: {
         isBlurred: true,
         patternColor: DEFAULT_PATTERN_COLOR,
+        backgroundColor: '#DBDDBB',
+        secondBackgroundColor: '#6BA587',
+        thirdBackgroundColor: '#D5D88D',
+        fourthBackgroundColor: '#88B884',
+        pattern: lightPattern,
+        intensity: 100,
       },
       dark: {
         isBlurred: true,
         patternColor: DARK_THEME_PATTERN_COLOR,
+        backgroundColor: '#598BF6',
+        secondBackgroundColor: '#7A5EEF',
+        thirdBackgroundColor: '#D67CFF',
+        fourthBackgroundColor: '#F38B58',
+        pattern: lightPattern,
+        intensity: -100,
       },
     },
     performance: INITIAL_PERFORMANCE_STATE_MAX,

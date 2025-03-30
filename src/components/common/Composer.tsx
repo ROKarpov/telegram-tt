@@ -196,6 +196,7 @@ type OwnProps = {
   onForward?: NoneToVoidFunction;
   onFocus?: NoneToVoidFunction;
   onBlur?: NoneToVoidFunction;
+  onMessageSent?: NoneToVoidFunction;
 };
 
 type StateProps =
@@ -307,6 +308,7 @@ const Composer: FC<OwnProps & StateProps> = ({
   onDropHide,
   onFocus,
   onBlur,
+  onMessageSent,
   editingMessage,
   chatId,
   threadId,
@@ -386,6 +388,7 @@ const Composer: FC<OwnProps & StateProps> = ({
   canPlayEffect,
   shouldPlayEffect,
   maxMessageLength,
+
 }) => {
   const {
     sendMessage,
@@ -994,6 +997,7 @@ const Composer: FC<OwnProps & StateProps> = ({
       sendGrouped,
       isInvertedMedia,
     });
+    onMessageSent?.();
   });
 
   const handleSendAttachments = useLastCallback((
@@ -1090,6 +1094,8 @@ const Composer: FC<OwnProps & StateProps> = ({
     if (IS_IOS && messageInput && messageInput === document.activeElement) {
       applyIosAutoCapitalizationFix(messageInput);
     }
+
+    onMessageSent?.();
 
     // Wait until message animation starts
     requestMeasure(() => {
@@ -1309,6 +1315,7 @@ const Composer: FC<OwnProps & StateProps> = ({
       sendMessage({ messageList: currentMessageList, poll });
       closePollModal();
     }
+    onMessageSent?.();
   });
 
   const sendSilent = useLastCallback((additionalArgs?: ScheduledMessageArgs) => {
@@ -1565,14 +1572,17 @@ const Composer: FC<OwnProps & StateProps> = ({
     requestCalendar((scheduledAt) => {
       handleMessageSchedule({}, scheduledAt, currentMessageList!);
     });
+    onMessageSent?.();
   });
 
   const handleSendSilent = useLastCallback(() => {
     sendSilent();
+    onMessageSent?.();
   });
 
   const handleSendWhenOnline = useLastCallback(() => {
     handleMessageSchedule({}, SCHEDULED_WHEN_ONLINE, currentMessageList!, effect?.id);
+    onMessageSent?.();
   });
 
   const handleSendScheduledAttachments = useLastCallback(
@@ -1580,12 +1590,14 @@ const Composer: FC<OwnProps & StateProps> = ({
       requestCalendar((scheduledAt) => {
         handleMessageSchedule({ sendCompressed, sendGrouped, isInvertedMedia }, scheduledAt, currentMessageList!);
       });
+      onMessageSent?.();
     },
   );
 
   const handleSendSilentAttachments = useLastCallback(
     (sendCompressed: boolean, sendGrouped: boolean, isInvertedMedia?: true) => {
       sendSilent({ sendCompressed, sendGrouped, isInvertedMedia });
+      onMessageSent?.();
     },
   );
 
@@ -1602,7 +1614,7 @@ const Composer: FC<OwnProps & StateProps> = ({
       default:
         return handleSend;
     }
-  }, [mainButtonState, handleEditComplete]);
+  }, [mainButtonState, handleEditComplete, onMessageSent]);
 
   const withBotCommands = isChatWithBot && botMenuButton?.type === 'commands' && !editingMessage
     && botCommands !== false && !activeVoiceRecording;

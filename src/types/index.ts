@@ -72,8 +72,13 @@ export type PerformanceType = {
 export interface IThemeSettings {
   background?: string;
   backgroundColor?: string;
+  secondBackgroundColor?: string;
+  thirdBackgroundColor?: string;
+  fourthBackgroundColor?: string;
   patternColor?: string;
+  pattern?: string;
   isBlurred?: boolean;
+  intensity?: number;
 }
 
 export type NotifySettings = {

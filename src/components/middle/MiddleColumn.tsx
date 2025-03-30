@@ -1,5 +1,5 @@
 import React, {
-  memo, useEffect, useMemo,
+  memo, useCallback, useEffect, useMemo,
   useState,
 } from '../../lib/teact/teact';
 import { getActions, withGlobal } from '../../global';
@@ -62,12 +62,11 @@ import buildClassName from '../../util/buildClassName';
 import buildStyle from '../../util/buildStyle';
 import captureEscKeyListener from '../../util/captureEscKeyListener';
 import {
-  IS_ANDROID, IS_ELECTRON, IS_IOS, IS_SAFARI, IS_TRANSLATION_SUPPORTED, MASK_IMAGE_DISABLED,
+  IS_ANDROID, IS_IOS, IS_SAFARI, IS_TRANSLATION_SUPPORTED, MASK_IMAGE_DISABLED,
 } from '../../util/windowEnvironment';
 import calculateMiddleFooterTransforms from './helpers/calculateMiddleFooterTransforms';
 
 import useAppLayout from '../../hooks/useAppLayout';
-import useCustomBackground from '../../hooks/useCustomBackground';
 import useForceUpdate from '../../hooks/useForceUpdate';
 import useHistoryBack from '../../hooks/useHistoryBack';
 import useLastCallback from '../../hooks/useLastCallback';
@@ -97,9 +96,9 @@ import MiddleHeaderPanes from './MiddleHeaderPanes';
 import PremiumRequiredPlaceholder from './PremiumRequiredPlaceholder';
 import ReactorListModal from './ReactorListModal.async';
 import MiddleSearch from './search/MiddleSearch.async';
+import MessageBackground from './MessageBackground';
 
 import './MiddleColumn.scss';
-import styles from './MiddleColumn.module.scss';
 
 interface OwnProps {
   leftColumnRef: React.RefObject<HTMLDivElement>;
@@ -119,14 +118,10 @@ type StateProps = {
   currentUserBannedRights?: ApiChatBannedRights;
   defaultBannedRights?: ApiChatBannedRights;
   pinnedMessagesCount?: number;
-  theme: ThemeKey;
-  customBackground?: string;
-  backgroundColor?: string;
   patternColor?: string;
   isLeftColumnShown?: boolean;
-  isRightColumnShown?: boolean;
-  isBackgroundBlurred?: boolean;
   leftColumnWidth?: number;
+  withDefaultBg: boolean;
   hasActiveMiddleSearch?: boolean;
   isSelectModeActive?: boolean;
   isSeenByModalOpen: boolean;
@@ -179,13 +174,8 @@ function MiddleColumn({
   currentUserBannedRights,
   defaultBannedRights,
   pinnedMessagesCount,
-  customBackground,
-  theme,
-  backgroundColor,
   patternColor,
   isLeftColumnShown,
-  isRightColumnShown,
-  isBackgroundBlurred,
   leftColumnWidth,
   hasActiveMiddleSearch,
   isSelectModeActive,
@@ -211,6 +201,7 @@ function MiddleColumn({
   isSavedDialog,
   canShowOpenChatButton,
   isContactRequirePremium,
+  withDefaultBg,
   topics,
 }: OwnProps & StateProps) {
   const {
@@ -239,6 +230,10 @@ function MiddleColumn({
   const isScrollDownShown = isScrollDownNeeded && (!isMobile || !hasActiveMiddleSearch);
   const [isNotchShown, setIsNotchShown] = useState<boolean | undefined>();
   const [isUnpinModalOpen, setIsUnpinModalOpen] = useState(false);
+
+  const [messageSentHandler, setMessageSentHandler] = useState<{ handler: NoneToVoidFunction | undefined }>({
+    handler: undefined,
+  });
 
   const {
     handleIntersectPinnedMessage,
@@ -415,20 +410,8 @@ function MiddleColumn({
     unblockUser({ userId: chatId! });
   });
 
-  const customBackgroundValue = useCustomBackground(theme, customBackground);
-
   const className = buildClassName(
     MASK_IMAGE_DISABLED ? 'mask-image-disabled' : 'mask-image-enabled',
-  );
-
-  const bgClassName = buildClassName(
-    styles.background,
-    styles.withTransition,
-    customBackground && styles.customBgImage,
-    backgroundColor && styles.customBgColor,
-    customBackground && isBackgroundBlurred && styles.blurred,
-    isRightColumnShown && styles.withRightColumn,
-    IS_ELECTRON && !(renderingChatId && renderingThreadId) && styles.draggable,
   );
 
   const messagingDisabledClassName = buildClassName(
@@ -476,6 +459,10 @@ function MiddleColumn({
   );
   const withExtraShift = Boolean(isMessagingDisabled || isSelectModeActive);
 
+  const handleMessageSentHandlerChanged = useCallback((handler: NoneToVoidFunction) => {
+    setMessageSentHandler({ handler });
+  }, []);
+
   return (
     <div
       id="MiddleColumn"
@@ -489,7 +476,6 @@ function MiddleColumn({
         `--composer-translate-x: ${composerTranslateX}px`,
         `--toolbar-translate-x: ${toolbarTranslateX}px`,
         `--pattern-color: ${patternColor}`,
-        backgroundColor && `--theme-background-color: ${backgroundColor}`,
       )}
       onClick={(isTablet && isLeftColumnShown) ? handleTabletFocus : undefined}
     >
@@ -501,10 +487,10 @@ function MiddleColumn({
           onDoubleClick={resetResize}
         />
       )}
-      <div
-        className={bgClassName}
-        style={customBackgroundValue ? `--custom-background: ${customBackgroundValue}` : undefined}
-      />
+      <MessageBackground
+        renderingChatId={renderingChatId}
+        renderingThreadId={renderingThreadId}
+        onMessageSentHandlerChanged={handleMessageSentHandlerChanged} />
       <div id="middle-column-portals" />
       {Boolean(renderingChatId && renderingThreadId) && (
         <>
@@ -548,7 +534,7 @@ function MiddleColumn({
                 isReady={isReady}
                 isContactRequirePremium={isContactRequirePremium}
                 withBottomShift={withMessageListBottomShift}
-                withDefaultBg={Boolean(!customBackground && !backgroundColor)}
+                withDefaultBg={withDefaultBg}
                 onIntersectPinnedMessage={renderingHandleIntersectPinnedMessage!}
               />
               <div className={footerClassName}>
@@ -565,6 +551,7 @@ function MiddleColumn({
                     editableInputId={EDITABLE_INPUT_ID}
                     editableInputCssSelector={EDITABLE_INPUT_CSS_SELECTOR}
                     inputId="message-input-text"
+                    onMessageSent={messageSentHandler.handler}
                   />
                 )}
                 {isPinnedMessageList && canUnpin && (
@@ -714,10 +701,10 @@ function MiddleColumn({
 }
 
 export default memo(withGlobal<OwnProps>(
-  (global, { isMobile }): StateProps => {
+  (global): StateProps => {
     const theme = selectTheme(global);
     const {
-      isBlurred: isBackgroundBlurred, background: customBackground, backgroundColor, patternColor,
+      background: customBackground, backgroundColor, patternColor,
     } = global.settings.themes[theme] || {};
 
     const {
@@ -729,13 +716,9 @@ export default memo(withGlobal<OwnProps>(
     const { leftColumnWidth } = global;
 
     const state: StateProps = {
-      theme,
-      customBackground,
-      backgroundColor,
+      withDefaultBg: !(customBackground || backgroundColor),
       patternColor,
       isLeftColumnShown,
-      isRightColumnShown: selectIsRightColumnShown(global, isMobile),
-      isBackgroundBlurred,
       hasActiveMiddleSearch: Boolean(selectCurrentMiddleSearch(global)),
       isSelectModeActive: selectIsInSelectMode(global),
       isSeenByModalOpen: Boolean(seenByModal),

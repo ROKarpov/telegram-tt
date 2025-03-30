@@ -24,6 +24,7 @@ import Loading from '../../ui/Loading';
 import WallpaperTile from './WallpaperTile';
 
 import './SettingsGeneralBackground.scss';
+import {INITIAL_GLOBAL_STATE} from "../../../global/initialState";
 
 type OwnProps = {
   isActive?: boolean;
@@ -88,9 +89,7 @@ const SettingsGeneralBackground: FC<OwnProps & StateProps> = ({
     setThemeSettings({
       theme,
       background: undefined,
-      backgroundColor: undefined,
-      isBlurred: true,
-      patternColor: theme === 'dark' ? DARK_THEME_PATTERN_COLOR : DEFAULT_PATTERN_COLOR,
+      ...INITIAL_GLOBAL_STATE.settings.themes[theme],
     });
   }, [setThemeSettings, theme]);
 
